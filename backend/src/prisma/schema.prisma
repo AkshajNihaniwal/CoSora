@@ -1,0 +1,385 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                  String              @id @default(uuid())
+  userId              String              @unique
+  name                String
+  password            String
+  role                UserRole
+  domainScope         LegalDomain[]
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  createdBy           String?
+  isActive            Boolean             @default(true)
+  tasks               Task[]              @relation("AssignedEditor")
+  approvals           Approval[]
+  auditLogs           AuditLog[]
+  roleChangeRequests  RoleChangeRequest[] @relation("Subject")
+  roleChangeApprovals RoleChangeApproval[] @relation("Approver")
+  notifications       Notification[]
+}
+
+enum UserRole {
+  ADMIN
+  EDITOR
+  REVIEWER
+}
+
+enum LegalDomain {
+  CONTRACT_MANAGEMENT
+  LEGAL_COMPLIANCE
+  LITIGATION
+  IP_MANAGEMENT
+  EMPLOYMENT_LABOUR
+  CORPORATE_GOVERNANCE
+  MERGERS_ACQUISITIONS
+  DATA_PRIVACY
+  RISK_MANAGEMENT
+  REGULATOR_LIAISON
+  POLICY_DRAFTING
+  PROPERTY_LEASING
+}
+
+model Task {
+  id               String             @id @default(uuid())
+  title            String
+  description      String
+  domain           LegalDomain
+  currentStage     Int                @default(0)
+  riskScore        Int                @default(3)
+  riskScorePrecise Float?
+  analysisSummary  Json?
+  jurisdiction     String             @default("India")
+  status           TaskStatus         @default(PENDING)
+  priority         Priority           @default(NORMAL)
+  manualEntry      Boolean            @default(false)
+  assignedTo       User?              @relation("AssignedEditor", fields: [assignedToId], references: [id])
+  assignedToId     String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  dueAt            DateTime?
+  slaDeadline      DateTime?
+  documents        Document[]
+  approvals        Approval[]
+  comments         Comment[]
+  emailEvents      EmailEvent[]
+  auditLogs        AuditLog[]
+  agentLogs        AgentLog[]
+  crossDeptTask    CrossDeptApproval?
+  intakeSessions   IntakeSession[]
+  assistantMessages TaskAssistantMessage[]
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  AWAITING_HITL
+  AWAITING_CROSS_DEPT
+  ESCALATED
+  APPROVED
+  REJECTED
+  COMPLETED
+  ARCHIVED
+}
+
+enum Priority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+  CRITICAL
+}
+
+model Document {
+  id         String   @id @default(uuid())
+  taskId     String
+  task       Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  version    Int      @default(1)
+  filename   String
+  filepath   String
+  mimeType   String
+  sizeBytes  Int
+  sha256Hash String
+  isLatest   Boolean  @default(true)
+  uploadedBy String
+  createdAt  DateTime @default(now())
+  diff       String?
+  notes      String?
+}
+
+model Approval {
+  id          String           @id @default(uuid())
+  taskId      String
+  task        Task             @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  stage       Int
+  approver    User             @relation(fields: [approverId], references: [id])
+  approverId  String
+  decision    ApprovalDecision
+  method      HITLMethod
+  reason      String?
+  payloadHash String?
+  signature   String?
+  deviceInfo  String?
+  ipAddress   String?
+  createdAt   DateTime         @default(now())
+}
+
+enum ApprovalDecision {
+  APPROVED
+  REJECTED
+  RETURNED_TO_STAGE
+}
+
+enum HITLMethod {
+  BIOMETRIC
+  PASSWORD
+  EMAIL_TOKEN
+  ESIGN_DOCUSIGN
+  ESIGN_AADHAAR
+}
+
+model Comment {
+  id         String        @id @default(uuid())
+  taskId     String
+  task       Task          @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  authorId   String
+  authorRole UserRole
+  text       String
+  clauseRef  String?
+  status     CommentStatus @default(OPEN)
+  resolvedBy String?
+  resolvedAt DateTime?
+  createdAt  DateTime      @default(now())
+}
+
+enum CommentStatus {
+  OPEN
+  ACKNOWLEDGED
+  RESOLVED
+}
+
+model RoleChangeRequest {
+  id            String               @id @default(uuid())
+  subjectUser   User                 @relation("Subject", fields: [subjectUserId], references: [id])
+  subjectUserId String
+  requestedBy   String
+  oldRole       UserRole
+  newRole       UserRole
+  reason        String
+  status        RoleChangeStatus     @default(PENDING_ALL_ADMINS)
+  approvals     RoleChangeApproval[]
+  createdAt     DateTime             @default(now())
+  completedAt   DateTime?
+}
+
+model RoleChangeApproval {
+  id          String            @id @default(uuid())
+  requestId   String
+  request     RoleChangeRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  adminUser   User              @relation("Approver", fields: [adminUserId], references: [id])
+  adminUserId String
+  decision    ApprovalDecision
+  createdAt   DateTime          @default(now())
+
+  @@unique([requestId, adminUserId])
+}
+
+enum RoleChangeStatus {
+  PENDING_ALL_ADMINS
+  APPROVED
+  REJECTED
+}
+
+model AuditLog {
+  id          String         @id @default(uuid())
+  eventType   AuditEventType
+  taskId      String?
+  task        Task?          @relation(fields: [taskId], references: [id])
+  actorId     String?
+  actor       User?          @relation(fields: [actorId], references: [id])
+  actorRole   UserRole?
+  description String
+  metadata    Json           @default("{}")
+  ipAddress   String?
+  deviceInfo  String?
+  prevHash    String?
+  entryHash   String
+  createdAt   DateTime       @default(now())
+
+  @@index([eventType])
+  @@index([taskId])
+  @@index([actorId])
+  @@index([createdAt])
+}
+
+enum AuditEventType {
+  TASK_CREATED
+  TASK_STAGE_ADVANCED
+  TASK_RETURNED
+  TASK_ESCALATED
+  TASK_COMPLETED
+  HITL_APPROVAL
+  HITL_REJECTION
+  HITL_BIOMETRIC
+  DOCUMENT_CREATED
+  DOCUMENT_EDITED
+  DOCUMENT_SIGNED
+  DOCUMENT_FILED
+  AI_DRAFT_GENERATED
+  AI_COMPLIANCE_CHECK
+  AI_RISK_SCORED
+  EMAIL_RECEIVED
+  EMAIL_CLASSIFIED
+  EMAIL_ADMIN_NOTIFIED
+  COMMENT_ADDED
+  COMMENT_RESOLVED
+  CROSS_DEPT_REQUESTED
+  CROSS_DEPT_APPROVED
+  CROSS_DEPT_REJECTED
+  USER_CREATED
+  USER_ROLE_CHANGE_REQUESTED
+  USER_ROLE_CHANGED
+  USER_LOGIN
+  USER_LOGOUT
+  SLA_ESCALATION
+  SYSTEM_CONFIG_CHANGED
+}
+
+model AgentLog {
+  id              String   @id @default(uuid())
+  taskId          String
+  task            Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  agentName       String
+  stage           Int
+  action          String
+  inputHash       String?
+  outputHash      String?
+  modelVersion    String?
+  ragSources      Json?
+  confidenceScore Float?
+  tokenCount      Int?
+  durationMs      Int?
+  createdAt       DateTime @default(now())
+}
+
+model EmailEvent {
+  id             String              @id @default(uuid())
+  taskId         String?
+  task           Task?               @relation(fields: [taskId], references: [id])
+  direction      EmailDirection
+  senderEmail    String
+  senderDomain   String
+  subject        String
+  classification EmailClassification
+  urgency        Int?
+  adminNotified  Boolean             @default(false)
+  autoReplied    Boolean             @default(false)
+  rawHeaders     Json?
+  createdAt      DateTime            @default(now())
+}
+
+enum EmailDirection {
+  INBOUND
+  OUTBOUND_INTERNAL
+}
+
+enum EmailClassification {
+  INTERNAL_LEGAL_REQUEST
+  COUNTERPARTY_CONTRACT
+  REGULATORY_GOVERNMENT
+  COURT_LITIGATION
+  CROSS_DEPT_INTERNAL
+  SPAM_IRRELEVANT
+}
+
+model CrossDeptApproval {
+  id             String          @id @default(uuid())
+  taskId         String          @unique
+  task           Task            @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  department     String
+  approverEmail  String
+  approverName   String
+  token          String          @unique
+  tokenExpiresAt DateTime
+  status         CrossDeptStatus @default(PENDING)
+  decision       String?
+  notes          String?
+  createdAt      DateTime        @default(now())
+  respondedAt    DateTime?
+}
+
+enum CrossDeptStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
+}
+
+model KnowledgeBase {
+  id           String      @id @default(uuid())
+  domain       LegalDomain
+  title        String
+  content      String
+  docType      String
+  jurisdiction String?
+  tags         String[]
+  version      String?
+  isActive     Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      String
+  taskId    String?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId, isRead])
+}
+
+model SystemConfig {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     Json
+  updatedAt DateTime @updatedAt
+}
+
+model IntakeSession {
+  id              String   @id @default(uuid())
+  userId          String
+  messages        Json     @default("[]")
+  collectedFields Json     @default("{}")
+  draft           Json?
+  status          String   @default("active")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  expiresAt       DateTime
+  taskId          String?
+  task            Task?    @relation(fields: [taskId], references: [id])
+}
+
+model TaskAssistantMessage {
+  id        String   @id @default(uuid())
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  userId    String
+  role      String
+  content   String
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([taskId, createdAt])
+}

@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --cosora-black: #0A0A0A;
+  --cosora-charcoal: #2F2F2F;
+  --cosora-smoke: #3D3D3D;
+  --cosora-orange: #FF6F00;
+  --cosora-gold: #FFB700;
+  --cosora-light: #E0E0E0;
+  --cosora-mid: #9E9E9E;
+  --cosora-white: #FFFFFF;
+  --cosora-danger: #D32F2F;
+  --cosora-success: #2E7D32;
+  --cosora-amber-bg: #1A1000;
+}
+
+body {
+  background-color: var(--cosora-black);
+  color: var(--cosora-light);
+  font-family: var(--font-eb-garamond), "EB Garamond", Georgia, serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+}
+
+@layer components {
+  .cosora-card {
+    @apply bg-cosora-charcoal border border-cosora-smoke rounded-lg;
+  }
+  .cosora-input {
+    @apply bg-cosora-smoke border border-cosora-smoke text-cosora-light rounded-md px-3 py-2 w-full focus:outline-none focus:border-cosora-orange;
+    font-family: var(--font-eb-garamond), "EB Garamond", Georgia, serif;
+  }
+  .cosora-btn-primary {
+    @apply bg-cosora-orange text-cosora-white font-semibold px-4 py-2 rounded-md hover:opacity-90 transition-opacity;
+  }
+  .cosora-btn-danger {
+    @apply bg-cosora-danger text-cosora-white font-semibold px-4 py-2 rounded-md hover:opacity-90 transition-opacity;
+  }
+  .cosora-section-header {
+    @apply w-full bg-cosora-charcoal border-l-4 border-cosora-orange px-4 py-3 font-semibold text-cosora-light;
+  }
+  .hitl-pulse {
+    @apply animate-pulseOrange border-cosora-orange;
+  }
+  .cosora-wordmark {
+    font-family: var(--font-eb-garamond), "EB Garamond", Georgia, serif;
+    font-optical-sizing: auto;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+}

@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: cosora
+      POSTGRES_PASSWORD: cosora
+      POSTGRES_DB: cosora
+    ports:
+      - '5432:5432'
+    volumes:
+      - cosora_pg:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    ports:
+      - '6379:6379'
+    volumes:
+      - cosora_redis:/data
+
+volumes:
+  cosora_pg:
+  cosora_redis:
