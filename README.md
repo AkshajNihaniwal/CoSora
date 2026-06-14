@@ -192,9 +192,9 @@ L9: EXECUTION
 
 | Team Member | Role | Responsibilities |
 |-------------|------|------------------|
-| **Akshaj Nihaniwal** | **Tech Lead & Full-Stack Architect** | System architecture, backend infrastructure, database design, DevOps, AI orchestration setup, Azure integration, security implementation |
-| **Ayush Samor** | **Frontend Lead & UI/UX Designer** | Next.js frontend, responsive design, user experience, real-time UI updates, mobile app planning, design system implementation |
-| **Lakshya Chowdhry** | **AI/Agent Specialist & Integration Lead** | Agent design & orchestration, Azure OpenAI integration, AI prompt engineering, CLM integration, email service setup, knowledge base curation |
+| **Akshaj Nihaniwal** | **Tech Lead & Full-Stack Architect** | System architecture, backend infrastructure (Node.js + Express + PostgreSQL + Redis), database schema design, DevOps & deployment, Azure integration, JWT auth & RBAC security implementation, API development |
+| **Ayush Samor** | **Frontend Engineer & Real-Time Systems** | Next.js 14 frontend engineering, WebSocket & Socket.io real-time pipeline, audit log live streaming, HITL approval flow implementation, Office 365 add-in development (Word & Outlook), Microsoft Graph API integration |
+| **Lakshya Chowdhry** | **AI/Agent Specialist & Integration Lead** | Multi-agent orchestration on Azure AI Foundry, Azure OpenAI prompt engineering for all 12 specialist agents, RAG pipeline setup on Azure AI Search, CLM integrations (Ironclad, DocuSign, SAP Ariba), email classification service, legal knowledge base curation |
 
 ---
 
@@ -610,16 +610,6 @@ Output:
 ✅ **No Azure credentials required** for testing  
 ✅ Perfect for development and demos
 
-To enable **Azure OpenAI integration**:
-
-1. Create Azure OpenAI resource in Azure Portal
-2. Get endpoint and key
-3. Add to `.env`:
-```env
-AZURE_OPENAI_ENDPOINT="https://your-resource.openai.azure.com/"
-AZURE_OPENAI_KEY="your-api-key"
-AZURE_OPENAI_DEPLOYMENT="gpt-4o"
-```
 
 ---
 
@@ -742,9 +732,9 @@ cosora/
 
 Update `backend/.env`:
 ```env
-AZURE_OPENAI_ENDPOINT="https://your-resource.openai.azure.com/"
-AZURE_OPENAI_KEY="sk-..."
-AZURE_OPENAI_DEPLOYMENT="gpt-4-turbo"  # Or your deployment name
+AZURE_OPENAI_ENDPOINT="-"
+AZURE_OPENAI_KEY="-"
+AZURE_OPENAI_DEPLOYMENT="-"  # Or your deployment name
 ```
 
 ### Email Integration (Production)
@@ -863,14 +853,10 @@ export const AGENT_DOMAIN_MAP = {
 
 | Name | Email | Role |
 |------|-------|------|
-| Akshaj Nihaniwal | akshaj@cosora.dev | Tech Lead & Full-Stack Architect |
-| Ayush Samor | ayush@cosora.dev | Frontend Lead & UI/UX Designer |
-| Lakshya Chowdhry | lakshya@cosora.dev | AI/Agent Specialist & Integration Lead |
-
+| Akshaj Nihaniwal | akshajnihaniwal@gmail.com | Tech Lead & Full-Stack Architect |
+| Ayush Samor | ayushsamor21@gmail.com | Frontend Engineer & Real-Time Systems |
+| Lakshya Chowdhry | chowdhrylakshya@gmail.com | AI/Agent Specialist & Integration Lead |
 ### For Questions:
-- 📧 Email: support@cosora.dev
-- 💬 Slack: #cosora-support
-- 📖 Docs: https://docs.cosora.dev (coming soon)
 - 🐛 Issues: GitHub Issues
 
 ---
