@@ -231,10 +231,25 @@ L9: EXECUTION
 
 **Login Credentials (Demo):**
 ```
-User ID: 2A14-355D-773B-01DA  (General Counsel)
-User ID: 2829-646B-E0AD-8129  (Head of Legal)
-User ID: 197A-B326-F85D-7FFA  (Managing Partner)
-Password: CoSora2024! (all admins)
+ADMIN
+General Counsel — 001D-415A-3516-6481
+Head of Legal — F66C-630D-9610-9900
+Managing Partner — A74A-92E1-9C18-EC4E
+
+EDITOR
+Contract Editor — 24DC-68CA-DDAF-7B5E
+Employment Editor — 219A-4EE2-03BE-ACC8
+IP Editor — 9CBB-01D0-0029-5C48
+Privacy Editor — 9176-4E15-97DE-9024
+Regulator Editor — 4521-034F-0F1A-E3D1
+Property Editor — BD92-E9EA-CB92-EEF4
+
+REVIEWER
+Finance Head — A8C3-398B-67FB-D6C6
+HR Head — 1FAD-8521-B9E8-51DD
+Compliance Officer — 71C8-6ADC-DD4A-A792
+
+Password for all users : CoSora2024!
 ```
 
 ---
